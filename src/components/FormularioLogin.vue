@@ -10,21 +10,21 @@
     <vue-form :state="formState" @submit.prevent="enviar()">
           <validate tag="div">
             <span>Nombre: </span>
-            <input v-model="formData.nombre" required name="name" :minlength="nombreMin" :maxlength="nombreMax"/>
+            <input v-model="formData.nombre" required name="name" :minlength="this.$store.state.caracteresMin" :maxlength="this.$store.state.caracteresMax"/>
             <field-messages name="name" show="$dirty">
               <div slot="required">Complete el campo</div>
-              <div slot="minlength">Este campo debe poseer al menos {{nombreMin}} caracteres</div>
-              <div slot="maxlength">Este campo debe no puede poseer mas de {{nombreMax}} caracteres</div>
+              <div slot="minlength">Este campo debe poseer al menos {{this.$store.state.caracteresMin}} caracteres</div>
+              <div slot="maxlength">Este campo debe no puede poseer mas de {{this.$store.state.caracteresMax}} caracteres</div>
             </field-messages>
           </validate>
           <br>
           <validate tag="div">
             <span>Contraseña: </span>
-            <input v-model="formData.contraseña" required name="contraseña" :minlength="nombreMin" :maxlength="nombreMax"/>
+            <input v-model="formData.contraseña" required name="contraseña" :minlength="this.$store.state.caracteresMin" :maxlength="this.$store.state.caracteresMax"/>
             <field-messages name="contraseña" show="$dirty">
               <div slot="required">Complete el campo</div>
-              <div slot="minlength">Este campo debe poseer al menos {{nombreMin}} caracteres</div>
-              <div slot="maxlength">Este campo debe no puede poseer mas de {{nombreMax}} caracteres</div>
+              <div slot="minlength">Este campo debe poseer al menos {{this.$store.state.caracteresMin}} caracteres</div>
+              <div slot="maxlength">Este campo debe no puede poseer mas de {{this.$store.state.caracteresMax}} caracteres</div>
             </field-messages>
           </validate>
           <br>
@@ -36,19 +36,22 @@
   </h3>
   <hr>
   </div>
-   <div v-show="!validar">
-    <Pagina :reg="this.usuario" :val="this.validar"/>
+  <!--
+   <div v-show="!this.validar">
+    <Pagina :reg="this.usuario" :val="this.validar" :usuarios="this.usuarios" @eliminar="eliminar($event)" />
      </div>
+  -->
     </div>
+  
   </section>
 
 </template>
 
 <script >
-import Pagina from './Pagina.vue'
+//import Pagina from './Pagina.vue'
 
   export default  {
-  components: { Pagina },
+  components: {  },
     name: 'src-components-formulario',
     props: ["res"],
     mounted () {
@@ -58,8 +61,6 @@ import Pagina from './Pagina.vue'
       return {
         formState:{},
         formData:this.getDataInicial(),
-        nombreMin:5,
-        nombreMax:15,
         usuarios:[],
         mensaje:"",
         validar:true,
@@ -80,8 +81,13 @@ import Pagina from './Pagina.vue'
               
         }else{
           console.log("entro por el no ok")
-          this.usuario=buscando
-             this.validar=false;
+          //this.usuario=buscando
+          this.$store.state.usuario=await buscando
+          this.$store.state.usuarios=await this.usuarios
+          console.log("res: "+this.$store.state.usuario.nombre)
+              await this.logIn();
+             //this.validar=false;
+            await this.$router.push({path:"/pagina"})  
            }
       },
 
@@ -97,6 +103,7 @@ import Pagina from './Pagina.vue'
           this.validar=false;
            }
       },
+     
 
 
       getDataInicial(){
@@ -106,6 +113,12 @@ import Pagina from './Pagina.vue'
           contraseña:null
          }
       },
+
+      //aca se elimina de la lista padre
+      eliminar(valor){
+        let res=this.usuarios.indexOf(valor)
+        this.usuarios.splice(res, 1);
+      }
       
     },
     computed: {
